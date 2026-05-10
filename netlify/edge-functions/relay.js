@@ -7,16 +7,10 @@ const STRIP_HEADERS = new Set([
   "x-forwarded-for", "x-real-ip", "x-host"
 ]);
 
-// ====================== Rate Limiting + Config ======================
 export const config = {
   path: "/*",
-  cache: "manual",
-  rateLimit: {
-    windowLimit: 250,        // حداکثر ۲۵۰ درخواست در هر ۶۰ ثانیه برای هر IP
-    windowSize: 60,          // ۶۰ ثانیه
-    aggregateBy: ["ip"],     // بر اساس آی‌پی
-    // action: "reject"      // پیش‌فرض reject با 429
-  }
+  cache: "manual"
+  // Rate Limit فعلاً خاموش شد تا قطع و وصل کمتر بشه
 };
 
 export default async function handler(request, context) {
@@ -34,14 +28,13 @@ export default async function handler(request, context) {
       return new Response(githubContent, {
         headers: {
           "content-type": "text/html; charset=UTF-8",
-          "cache-control": "public, max-age=7200, s-maxage=86400",
-          "vary": "accept-encoding"
+          "cache-control": "public, max-age=3600"
         }
       });
     }
 
     if (!targetHost) {
-      return new Response("Error: x-host or TARGET_DOMAIN missing", {
+      return new Response("Error: x-host or TARGET_DOMAIN missing", { 
         status: 400,
         headers: { "cache-control": "no-store" }
       });
@@ -86,9 +79,9 @@ export default async function handler(request, context) {
       responseHeaders.set(key, value);
     }
 
-    // Cache Policy
+    // Cache Policy — برای XHTTP خیلی محدود
     if (method === "GET" && !upgrade && upstream.ok) {
-      responseHeaders.set("Cache-Control", "public, max-age=30, s-maxage=60");
+      responseHeaders.set("Cache-Control", "public, max-age=15, s-maxage=30");
     } else {
       responseHeaders.set("Cache-Control", "no-store, no-cache, must-revalidate");
     }
