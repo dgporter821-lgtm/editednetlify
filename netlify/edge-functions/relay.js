@@ -4,7 +4,7 @@ const STRIP_HEADERS = new Set([
   "host", "connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
   "te", "trailer", "transfer-encoding", "upgrade", "forwarded",
   "x-forwarded-host", "x-forwarded-proto", "x-forwarded-port",
-  "x-forwarded-for", "x-real-ip"
+  "x-forwarded-for", "x-real-ip", "x-host"
 ]);
 
 export const config = {
